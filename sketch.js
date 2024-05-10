@@ -1,16 +1,29 @@
 // USING P5PLAY
 
-//put keys in an array and randomly assign them to fuctionalities (ex. move left, right, etc.) each time the character gets damaged (shuffle without overlapping)
-//make obstacles & items
+//put keys in an array and randomly assign them to fuctionalities (ex. move left, right, etc.) each time the character gets damaged & reset the keys when player dies
+//make obstacles & items (redemption item?)
+//more interactions with the map (joints, etc.)
 //build the map more (want to make multiple rounds but don't know how to have separate maps for each round)
 //turn hard numbers into variables
 //add more functionalities (crouching, etc.)
 //add visual effect for dying
+//different levels of ground (maybe make another round where I use joints for the ground & the joints sink so the player have to move fast)
+//make some platforms/objects appear when user passes certain x position
+//maybe make platforms move too
+//movement sequencing for routinely movements of enemies/moving platforms
 
 
+
+// make a boolean var for cehcking dead?
+//**different platforms/obstacles for each round**
 //********LOCK THE ROTATION OF THE PLAYER SQUARE*********
 //******************CONTROL KEYS NOT WORKING IN THE SECOND ROUND AFTER TOUCHING THE 1ST ROUND ENDPOINT (works when I switched to the second round with mouse tho)**********************
 //******SOMETIMES PLAYER RANDOMLY ACCELERATES?******
+
+
+// (troubleshooting)
+let clickNum = 0;
+
 
 //----screens---
 //let screens = ["start", "menu", "roundComplete", "gameOver", "endScreen"];
@@ -30,7 +43,11 @@ let ground;
 let endPoint;
 
 //----keys array----
-//let keys = ['a', 'd', 'space']; // maybe I need to convert these into keycodes
+let initialKeys = ['a', 'd', 'space'];
+let currentKeys = initialKeys;
+//let previousKeys = initialKeys;
+
+//keyChange function will shuffle the keys' positions within the array
 
 
 
@@ -108,8 +125,6 @@ function setup() {
 		r2ground.h
 	)
 	
-	
-	
 	//----platforms----
 	let platforms = new Group();
 	platforms.width = 25;
@@ -121,6 +136,12 @@ function setup() {
 	
 	//----obstacles----
 	let obstacles = new Group();
+	obstacles.width = 20;
+	obstacles.height = 10;
+	obstacles.color = "red";
+	obstacles.collider = "static";
+	
+	let o1 = new obstacles.Sprite(310,50);
 	
 	//----enenies----
 	let enemies = new Group();
@@ -182,7 +203,13 @@ function draw() {
 		setCam();
 		leftLimit();
 		movePlayer();
+		
+		//******* ""obstacles" is not defined in the current scope"
+		//keysChange();
+		//*******
+		
 		resetPlayer();
+		resetKeys(); //******************* RESETKEYS NOT WORKING ********************
 		endRound();
 	}
 	
@@ -204,7 +231,7 @@ function draw() {
 		//print(kb.pressing('a')); seems like 'a' key is not even "pressed"? (but works when I switched to round 2 with mouse click)
 	}
 
-	print(round);
+	//print(round);
 	
 }// draw ends
 
@@ -225,6 +252,62 @@ function setCam(){ //set the camera **maybe constrain cam x so there's no visibl
 
 function movePlayer(){ //move player with keyboard ***PLAYER CAN JUMP WHEN TOUCHING THE SIDEs OF THE GROUND BLOCKS***
 	
+	// with keyChange function
+	// for reference: let keys = ['a', 'd', 'space'];
+	// initially a = 0, d = 1, space = 2
+	
+		if (round == 1){ // diff func for each round bc of diff ground vars
+	//----round 1----
+		if(kb.pressing(currentKeys[0])){ // nested jump function inside left/right movements for multiple keys working together
+			if(kb.pressing(currentKeys[2]) && player.colliding(r1ground)){
+				player.vel.y = -3;
+				player.x -= 1.5;
+			}
+			else{
+				player.x -= 1.5;
+			}
+		}
+		else if(kb.pressing(currentKeys[1])){
+				if(kb.pressing(currentKeys[2]) && player.colliding(r1ground)){
+					player.vel.y = -3;
+					player.x -= 1.5;
+				}
+			else{
+			player.x += 1.5;
+			}
+		}
+		else if(kb.pressing(currentKeys[2]) && player.colliding(r1ground)){ //for vertical jump
+				player.vel.y = -3;
+		}
+	}
+	
+	//----round 2----
+	if (round == 2){
+		if(kb.pressing(currentKeys[0])){ // nested jump function inside left/right movements for multiple keys working together
+			if(kb.pressing(currentKeys[2]) && player.colliding(r2ground)){
+				player.vel.y = -3;
+				player.x -= 1.5;
+			}
+			else{
+				player.x -= 1.5;
+			}
+		}
+		else if(kb.pressing(currentKeys[1])){
+			if(kb.pressing(currentKeys[2]) && player.colliding(r2ground)){
+				player.vel.y = -3;
+				player.x -= 1.5;
+			}
+			else{
+			player.x += 1.5;
+			}
+		}
+		else if(kb.pressing(currentKeys[2]) && player.colliding(r2ground)){ //for vertical jump
+				player.vel.y = -3;
+		}
+	}
+	
+	
+	/* initial
 	if (round == 1){
 	//----round 1----
 		if(kb.pressing('a')){ // nested jump function inside left/right movements for multiple keys working together
@@ -274,6 +357,7 @@ function movePlayer(){ //move player with keyboard ***PLAYER CAN JUMP WHEN TOUCH
 				player.vel.y = -3;
 		}
 	}
+	*/
 	
 }//movePayer ends
 
@@ -331,16 +415,73 @@ function leftLimit(){ // player can't go beyond the left end of the screen (it k
 }//leftLimit ends
 
 
+//============in progress==============
 
-// ** for checking real quick if showing/removing of r1map works properly
+function keysChange(){
+	let previousKeys = currentKeys;
+	
+	//if(player.collides(obstacles)){ // ** obstacles (group) or o1 (an object) don't work ("not defined")
+		currentKeys = shuffle(currentKeys);
+	//}
+	
+	// if any of the keys are the same shuffle again
+	// WORKS (had to use while instead of if)
+	while(JSON.stringify(currentKeys) == JSON.stringify(previousKeys)){
+		currentKeys = shuffle(currentKeys);
+	}
+	
+	
+	/* only repeats once even tho resulting array is still the same
+	if(currentKeys[0] == previousKeys[0] || currentKeys[1] == previousKeys[1] || currentKeys[2] == previousKeys[2]){
+		currentKeys = shuffle(currentKeys);
+	}
+	else{
+	}
+	*/
+	
+	/* doesn't work?
+  while(currentKeys == previousKeys){
+		currentKeys = shuffle(currentKeys);
+	}
+	*/
+	
+	print("previous: " + previousKeys);
+}
+
+//=====================================
+
+
+function resetKeys(){
+	if(player.y > height){
+    currentKeys = initialKeys;
+	}	
+}
+
+
+
+
+
+// ** for checking stuff
 function mousePressed(){
-	///*
+	
+	clickNum ++;
+	
+	/*
 	round++;
 	
 	if(round > roundMax){
 	  round = 1;
 	}
-	//*/
+	*/
 	
-	print(round);
+	//if(player.collides(obstacles)){
+	//shuffle(keys);
+	//}
+	
+	keysChange();
+	
+	//print(round);
+	//print(clickNum);
+	//print(previousKeys);
+	print("current: " + currentKeys);
 }
