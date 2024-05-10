@@ -290,7 +290,7 @@ function draw() {
 	}
 	
 	
-	print(currentTime - lastBallTime);
+	//print(currentTime - lastBallTime);
 	
 	
 }// draw ends
