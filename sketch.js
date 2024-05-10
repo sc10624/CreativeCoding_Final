@@ -235,12 +235,12 @@ function draw() {
 		generateBalls(135);
 		generateBalls(200);
 		
-		//setCam();
-		
+		setCam();
+		/*
 		camera.zoom = 1;
 		camera.x = width/2;
 		camera.y = height/2;
-		
+		*/
 		leftLimit();
 		movePlayer();
 		//resetPlayer();
